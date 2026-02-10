@@ -198,6 +198,7 @@
     color: #fff;
   }
   .check-text.done { text-decoration: line-through; color: #475569; }
+  .check-text.done strong { color: inherit; }
 
   /* ===== STEP CARDS ===== */
   .step {
@@ -463,9 +464,24 @@
 
   <!-- MAIN CTA -->
   <a href="https://www.ticketmaster.com/noah-kahan-tickets/artist/2385568" target="_blank" class="launch-btn primary" id="main-cta">
-    OPEN TICKETMASTER NOW
-    <div class="btn-sub">Tap to open &rarr; Be signed in &rarr; Search "Noah Kahan Arlington"</div>
+    OPEN TICKETMASTER (BROWSER)
+    <div class="btn-sub">Tap to open ticketmaster.com &rarr; Be signed in &rarr; Search "Noah Kahan Arlington"</div>
   </a>
+  <a href="https://apps.apple.com/app/ticketmaster/id500003565" target="_blank" class="launch-btn secondary">
+    OPEN TICKETMASTER APP
+    <div class="btn-sub">TM app is FASTER on mobile &bull; iOS App Store link &bull; Open app if already installed</div>
+  </a>
+
+  <!-- TICKET QTY REMINDER -->
+  <div class="alert alert-warn">
+    <strong>HOW MANY TICKETS?</strong> TM asks this FIRST. Decide NOW: <strong style="color:#2ecc71;" id="qty-display">2 tickets</strong>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <span class="badge badge-green" style="padding:6px 14px;font-size:0.8rem;cursor:pointer;" onclick="setQty(1)">1</span>
+      <span class="badge badge-green" style="padding:6px 14px;font-size:0.8rem;cursor:pointer;background:rgba(46,204,113,0.5);" onclick="setQty(2)">2</span>
+      <span class="badge badge-green" style="padding:6px 14px;font-size:0.8rem;cursor:pointer;" onclick="setQty(3)">3</span>
+      <span class="badge badge-green" style="padding:6px 14px;font-size:0.8rem;cursor:pointer;" onclick="setQty(4)">4</span>
+    </div>
+  </div>
 
   <!-- READINESS CHECKLIST -->
   <div class="card">
@@ -610,6 +626,37 @@
   <!-- ALERT -->
   <div class="alert alert-warn">
     <strong>CRITICAL:</strong> DO NOT refresh during the queue. Ticketmaster assigns random positions at 12:00. Refreshing puts you at the back. The page auto-updates. Trust it.
+  </div>
+
+  <div class="alert alert-warn">
+    <strong>DO NOT USE INCOGNITO/PRIVATE MODE!</strong> You won't be signed in and your saved payment info won't load. Use your normal browser.
+  </div>
+
+  <!-- ERROR RECOVERY -->
+  <div class="card">
+    <div class="card-h" style="color:#e94560;">If Something Goes Wrong</div>
+    <div class="card-b">
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title"><span class="step-num">!</span> "Another fan beat you to these tickets"</div>
+        <div class="step-body">Hit BACK and try again immediately. Don't start over. TM will show you the next best available seats. Keep going.</div>
+      </div>
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title"><span class="step-num">!</span> "Session timed out" / Kicked from queue</div>
+        <div class="step-body">Switch to your BACKUP DEVICE. It should still be in queue. This is why you use multiple devices.</div>
+      </div>
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title"><span class="step-num">!</span> Payment declined</div>
+        <div class="step-body">Use a different card. Have a backup card saved in your TM account. Don't lose the seats while fixing payment.</div>
+      </div>
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title"><span class="step-num">!</span> Spinning / page won't load</div>
+        <div class="step-body">DO NOT refresh. Wait 30 seconds. If still stuck, switch to backup device. Your queue spot may still be active.</div>
+      </div>
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title"><span class="step-num">!</span> "No tickets available"</div>
+        <div class="step-body">Don't panic. Keep refreshing the event page every 30-60 seconds. Tickets release in waves as held carts expire (~2 min each).</div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1015,6 +1062,28 @@
   // ===== COUNTDOWN =====
   const ONSALE = new Date('2026-02-12T12:00:00-06:00');
   const PRESALE = new Date('2026-02-10T12:00:00-06:00');
+  let cdInterval = null;
+  let alerted = false;
+
+  function playAlertSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      // Play 3 urgent beeps
+      [0, 0.3, 0.6].forEach(delay => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 880;
+        osc.type = 'square';
+        gain.gain.value = 0.3;
+        osc.start(ctx.currentTime + delay);
+        osc.stop(ctx.currentTime + delay + 0.15);
+      });
+      // Vibrate if supported (mobile)
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 400]);
+    } catch(e) {}
+  }
 
   function updateCD() {
     const now = new Date();
@@ -1029,9 +1098,15 @@
       target = ONSALE;
       label.textContent = 'GENERAL ONSALE IN';
     } else {
-      label.textContent = 'TICKETS ON SALE NOW - GO!';
+      label.textContent = 'TICKETS ON SALE NOW - GO GO GO!';
       document.getElementById('cd-time').innerHTML = '<span class="cd-unit" style="background:#fff3;letter-spacing:2px;">LIVE</span>';
       el.classList.add('live');
+      // Alert once then stop the interval
+      if (!alerted) {
+        alerted = true;
+        playAlertSound();
+      }
+      if (cdInterval) { clearInterval(cdInterval); cdInterval = null; }
       return;
     }
 
@@ -1041,20 +1116,51 @@
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
 
+    // Alert + vibrate at 60 seconds remaining
+    if (diff <= 60000 && diff > 59000 && !alerted) {
+      playAlertSound();
+    }
+
     document.getElementById('cd-d').innerHTML = d + '<small>d</small>';
     document.getElementById('cd-h').innerHTML = String(h).padStart(2, '0') + '<small>h</small>';
     document.getElementById('cd-m').innerHTML = String(m).padStart(2, '0') + '<small>m</small>';
     document.getElementById('cd-s').innerHTML = String(s).padStart(2, '0') + '<small>s</small>';
   }
-  setInterval(updateCD, 1000);
+  cdInterval = setInterval(updateCD, 1000);
   updateCD();
 
-  // ===== CHECKLIST =====
+  // ===== CHECKLIST WITH LOCALSTORAGE =====
+  const STORAGE_KEY = 'nk-warroom-checks';
+
+  function saveChecks() {
+    const states = [];
+    document.querySelectorAll('.check-box').forEach(el => {
+      states.push(el.classList.contains('checked'));
+    });
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(states)); } catch(e) {}
+  }
+
+  function loadChecks() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (!saved) return;
+      document.querySelectorAll('.check-box').forEach((el, i) => {
+        if (saved[i]) {
+          el.classList.add('checked');
+          el.innerHTML = '&#10003;';
+          if (el.nextElementSibling) el.nextElementSibling.classList.add('done');
+        }
+      });
+      updateProgress();
+    } catch(e) {}
+  }
+
   function toggleCheck(el) {
     el.classList.toggle('checked');
     el.innerHTML = el.classList.contains('checked') ? '&#10003;' : '';
-    el.nextElementSibling?.classList.toggle('done', el.classList.contains('checked'));
+    if (el.nextElementSibling) el.nextElementSibling.classList.toggle('done', el.classList.contains('checked'));
     updateProgress();
+    saveChecks();
   }
 
   function updateProgress() {
@@ -1063,6 +1169,21 @@
     document.getElementById('progress-text').textContent = checked + ' / ' + total;
     document.getElementById('progress-fill').style.width = (checked / total * 100) + '%';
   }
+
+  // Load saved checklist on page load
+  loadChecks();
+
+  // ===== TICKET QUANTITY =====
+  function setQty(n) {
+    document.getElementById('qty-display').textContent = n + ' ticket' + (n > 1 ? 's' : '');
+    document.querySelectorAll('#qty-display').forEach(el => el.textContent = n + ' ticket' + (n > 1 ? 's' : ''));
+    try { localStorage.setItem('nk-qty', n); } catch(e) {}
+  }
+  // Load saved qty
+  try {
+    const savedQty = localStorage.getItem('nk-qty');
+    if (savedQty) setQty(parseInt(savedQty));
+  } catch(e) {}
 
   // ===== DEVICE STATUS CYCLE =====
   const STATUS_CYCLE = [
