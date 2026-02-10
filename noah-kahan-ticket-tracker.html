@@ -2,720 +2,1082 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Noah Kahan Ticket Tracker - Globe Life Field Arlington TX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e17">
+<title>Noah Kahan War Room - Globe Life Field</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
   body {
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     background: #0a0e17;
     color: #e2e8f0;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* HEADER */
-  .header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    border-bottom: 2px solid #e94560;
-    padding: 20px 24px;
-    text-align: center;
+  /* ===== TABS NAVIGATION ===== */
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #0f172a;
+    border-top: 1px solid #1e293b;
+    display: flex;
+    z-index: 1000;
+    padding-bottom: env(safe-area-inset-bottom);
   }
-  .header h1 {
-    font-size: 2rem;
-    background: linear-gradient(90deg, #e94560, #ff6b6b, #ffa502);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 1px;
-  }
-  .header .subtitle {
-    color: #94a3b8;
-    font-size: 0.95rem;
-    margin-top: 4px;
-  }
-  .header .venue-info {
-    margin-top: 10px;
-    font-size: 1.1rem;
-    color: #ffa502;
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    color: #475569;
+    font-size: 0.65rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
   }
-  .header .venue-info span { color: #e2e8f0; font-weight: 400; }
+  .tab.active { color: #e94560; }
+  .tab .tab-icon { font-size: 1.3rem; margin-bottom: 2px; }
+  .tab:active { opacity: 0.7; }
 
-  /* COUNTDOWN */
-  .countdown-bar {
-    background: linear-gradient(90deg, #e94560, #c0392b);
-    padding: 14px 24px;
-    text-align: center;
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    color: #fff;
+  /* ===== PAGE CONTAINER ===== */
+  .page { display: none; padding-bottom: 70px; }
+  .page.active { display: block; }
+
+  /* ===== STICKY COUNTDOWN ===== */
+  .countdown-sticky {
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 20px rgba(233,69,96,0.4);
+    background: linear-gradient(90deg, #e94560, #c0392b);
+    padding: 10px 16px;
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(233,69,96,0.5);
   }
-  .countdown-bar .label { font-weight: 400; font-size: 0.85rem; opacity: 0.9; }
-  .countdown-bar .time-units { display: inline-flex; gap: 6px; margin-left: 8px; }
-  .countdown-bar .time-unit {
-    background: rgba(0,0,0,0.3);
-    padding: 4px 10px;
-    border-radius: 6px;
-    min-width: 48px;
-    display: inline-block;
+  .countdown-sticky.live { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .cd-time {
+    display: inline-flex;
+    gap: 4px;
+    margin-left: 6px;
     font-variant-numeric: tabular-nums;
   }
-  .countdown-bar .time-unit small { font-size: 0.65rem; font-weight: 400; }
-  .countdown-bar.expired { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+  .cd-unit {
+    background: rgba(0,0,0,0.25);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .cd-unit small { font-size: 0.55rem; font-weight: 400; }
 
-  /* BUDGET BANNER */
-  .budget-banner {
-    background: #1e293b;
-    border-left: 4px solid #ffa502;
-    margin: 20px 24px 0;
-    padding: 14px 20px;
-    border-radius: 0 8px 8px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+  /* ===== HEADER COMPACT ===== */
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    padding: 20px 16px 16px;
+    text-align: center;
   }
-  .budget-banner .budget-label { font-size: 0.9rem; color: #94a3b8; }
-  .budget-banner .budget-amount {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #2ecc71;
+  .hero h1 {
+    font-size: 1.4rem;
+    background: linear-gradient(90deg, #e94560, #ff6b6b, #ffa502);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
   }
-  .budget-banner .budget-tip {
+  .hero .meta {
+    color: #94a3b8;
     font-size: 0.8rem;
-    color: #64748b;
-    width: 100%;
+    margin-top: 4px;
+  }
+  .hero .venue {
+    color: #ffa502;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 6px;
   }
 
-  /* MAIN GRID */
-  .main { padding: 20px 24px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-  @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+  /* ===== LAUNCH BUTTON (BIG MOBILE CTA) ===== */
+  .launch-btn {
+    display: block;
+    margin: 16px;
+    padding: 18px 20px;
+    border-radius: 14px;
+    text-decoration: none;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+    -webkit-appearance: none;
+  }
+  .launch-btn:active { transform: scale(0.97); }
+  .launch-btn.primary {
+    background: linear-gradient(135deg, #e94560, #c0392b);
+    box-shadow: 0 6px 24px rgba(233,69,96,0.4);
+  }
+  .launch-btn.secondary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    box-shadow: 0 6px 24px rgba(52,152,219,0.3);
+  }
+  .launch-btn.success {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    box-shadow: 0 6px 24px rgba(46,204,113,0.3);
+  }
+  .launch-btn .btn-sub {
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-top: 4px;
+  }
 
-  /* CARDS */
+  /* ===== CARDS ===== */
   .card {
     background: #1e293b;
     border-radius: 12px;
+    margin: 12px 16px;
     overflow: hidden;
     border: 1px solid #334155;
   }
-  .card-header {
-    padding: 14px 18px;
-    font-weight: 700;
-    font-size: 1rem;
-    border-bottom: 1px solid #334155;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .card-body { padding: 16px 18px; }
-
-  /* BEST SECTIONS TABLE */
-  .section-table { width: 100%; border-collapse: collapse; }
-  .section-table th {
-    text-align: left;
-    font-size: 0.75rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 6px 8px;
-    border-bottom: 1px solid #334155;
-  }
-  .section-table td {
-    padding: 10px 8px;
-    border-bottom: 1px solid rgba(51,65,85,0.5);
-    font-size: 0.9rem;
-  }
-  .section-table tr:last-child td { border-bottom: none; }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 999px;
-    font-size: 0.7rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-  .badge-gold { background: rgba(255,165,2,0.2); color: #ffa502; }
-  .badge-green { background: rgba(46,204,113,0.2); color: #2ecc71; }
-  .badge-blue { background: rgba(52,152,219,0.2); color: #3498db; }
-  .badge-red { background: rgba(233,69,96,0.2); color: #e94560; }
-
-  /* PRICE TRACKER */
-  .price-source {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(51,65,85,0.5);
-  }
-  .price-source:last-child { border-bottom: none; }
-  .price-source .source-name { font-weight: 600; font-size: 0.95rem; }
-  .price-source .source-type { font-size: 0.75rem; color: #64748b; }
-  .price-source .price {
-    font-size: 1.3rem;
-    font-weight: 800;
-    font-variant-numeric: tabular-nums;
-  }
-  .price.under-budget { color: #2ecc71; }
-  .price.over-budget { color: #e94560; }
-  .price.unknown { color: #64748b; font-size: 1rem; }
-  .price-note { font-size: 0.7rem; color: #64748b; text-align: right; }
-
-  /* QUICK LINKS */
-  .link-grid { display: flex; flex-direction: column; gap: 10px; }
-  .quick-link {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  .card-h {
     padding: 12px 16px;
-    background: #0f172a;
-    border-radius: 8px;
-    text-decoration: none;
-    color: #e2e8f0;
-    border: 1px solid #334155;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .quick-link:hover { border-color: #e94560; background: #1a1a2e; }
-  .quick-link .link-label { font-weight: 600; font-size: 0.9rem; }
-  .quick-link .link-desc { font-size: 0.75rem; color: #64748b; }
-  .quick-link .arrow { color: #e94560; font-size: 1.2rem; }
-
-  /* STRATEGY SECTION */
-  .strategy-list { list-style: none; }
-  .strategy-list li {
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(51,65,85,0.5);
-    display: flex;
-    gap: 10px;
-    align-items: flex-start;
+    font-weight: 700;
     font-size: 0.9rem;
-    line-height: 1.4;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-  .strategy-list li:last-child { border-bottom: none; }
-  .strategy-list .step-num {
+  .card-b { padding: 14px 16px; }
+
+  /* ===== CHECKLIST ===== */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-box {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #475569;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .check-box.checked {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    color: #fff;
+  }
+  .check-text.done { text-decoration: line-through; color: #475569; }
+
+  /* ===== STEP CARDS ===== */
+  .step {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-left: 3px solid #e94560;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
     background: #e94560;
     color: #fff;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .step-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+  }
+  .step-body {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.45;
+  }
+
+  /* ===== SECTION PRIORITY LIST ===== */
+  .section-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+    gap: 8px;
+  }
+  .section-row:last-child { border-bottom: none; }
+  .section-rank {
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     flex-shrink: 0;
   }
+  .rank-1 { background: #ffd700; color: #000; }
+  .rank-2 { background: #c0c0c0; color: #000; }
+  .rank-3 { background: #cd7f32; color: #fff; }
+  .rank-4 { background: #475569; color: #fff; }
+  .rank-5 { background: #334155; color: #94a3b8; }
+  .section-info { flex: 1; min-width: 0; }
+  .section-name { font-weight: 700; font-size: 0.9rem; }
+  .section-desc { font-size: 0.72rem; color: #64748b; }
+  .section-price { text-align: right; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+  .price-green { color: #2ecc71; }
+  .price-yellow { color: #ffa502; }
+  .price-red { color: #e94560; }
 
-  /* FULL WIDTH CARD */
-  .full-width { grid-column: 1 / -1; }
-
-  /* SEATING MAP (ASCII) */
-  .seating-map {
-    background: #0f172a;
-    border-radius: 8px;
-    padding: 20px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.7rem;
-    line-height: 1.5;
-    overflow-x: auto;
-    white-space: pre;
-    text-align: center;
-    color: #64748b;
+  /* ===== PRICE ROWS ===== */
+  .price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
   }
-  .seating-map .highlight { color: #2ecc71; font-weight: 700; }
-  .seating-map .stage { color: #e94560; font-weight: 700; }
-  .seating-map .good { color: #ffa502; }
-  .seating-map .ok { color: #3498db; }
+  .price-row:last-child { border-bottom: none; }
+  .pr-name { font-weight: 600; font-size: 0.9rem; }
+  .pr-type { font-size: 0.7rem; color: #64748b; }
+  .pr-price { font-size: 1.15rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 
-  /* STATUS INDICATOR */
-  .status-bar {
-    margin: 20px 24px 0;
-    padding: 10px 16px;
-    background: #1e293b;
-    border-radius: 8px;
+  /* ===== QUICK LINK BUTTONS ===== */
+  .qlink {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #0f172a;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #e2e8f0;
+    border: 1px solid #334155;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+    min-height: 56px;
+  }
+  .qlink:last-child { margin-bottom: 0; }
+  .qlink:active { border-color: #e94560; background: #1a1a2e; }
+  .qlink-label { font-weight: 700; font-size: 0.9rem; }
+  .qlink-desc { font-size: 0.72rem; color: #64748b; }
+  .qlink-arrow { color: #e94560; font-size: 1.4rem; font-weight: 300; }
+
+  /* ===== ALERTS ===== */
+  .alert {
+    margin: 12px 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
     font-size: 0.85rem;
-  }
-  .pulse {
-    width: 10px; height: 10px;
-    background: #2ecc71;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.6); }
-    50% { box-shadow: 0 0 0 8px rgba(46,204,113,0); }
-  }
-
-  /* REFRESH BUTTON */
-  .refresh-btn {
-    background: linear-gradient(135deg, #e94560, #c0392b);
-    border: none;
-    color: #fff;
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: transform 0.1s;
-  }
-  .refresh-btn:hover { transform: scale(1.03); }
-  .refresh-btn:active { transform: scale(0.97); }
-
-  /* ALERT BOX */
-  .alert-box {
-    margin: 20px 24px;
-    padding: 16px 20px;
-    background: rgba(46,204,113,0.1);
-    border: 1px solid #2ecc71;
-    border-radius: 8px;
-    font-size: 0.9rem;
     line-height: 1.5;
   }
-  .alert-box.warning {
-    background: rgba(255,165,2,0.1);
-    border-color: #ffa502;
-  }
-  .alert-box strong { color: #ffa502; }
+  .alert-warn { background: rgba(255,165,2,0.12); border: 1px solid rgba(255,165,2,0.3); }
+  .alert-info { background: rgba(52,152,219,0.12); border: 1px solid rgba(52,152,219,0.3); }
+  .alert-success { background: rgba(46,204,113,0.12); border: 1px solid rgba(46,204,113,0.3); }
+  .alert strong { color: #ffa502; }
 
-  footer {
-    text-align: center;
-    padding: 30px 24px;
-    font-size: 0.75rem;
-    color: #475569;
+  /* ===== BADGE ===== */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
   }
+  .badge-gold { background: rgba(255,165,2,0.2); color: #ffa502; }
+  .badge-green { background: rgba(46,204,113,0.2); color: #2ecc71; }
+  .badge-red { background: rgba(233,69,96,0.2); color: #e94560; }
+
+  /* ===== INFO GRID ===== */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .info-box {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .info-box .info-label { font-size: 0.65rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .info-box .info-value { font-size: 0.9rem; font-weight: 700; }
+
+  /* ===== DEVICE TRACKER ===== */
+  .device-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(51,65,85,0.4);
+  }
+  .device-row:last-child { border-bottom: none; }
+  .device-icon { font-size: 1.4rem; }
+  .device-info { flex: 1; }
+  .device-name { font-weight: 600; font-size: 0.88rem; }
+  .device-task { font-size: 0.72rem; color: #64748b; }
+  .device-status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .status-ready { background: rgba(46,204,113,0.2); color: #2ecc71; }
+  .status-standby { background: rgba(255,165,2,0.2); color: #ffa502; }
+  .status-off { background: rgba(100,116,139,0.2); color: #64748b; }
+
+  /* ===== TIMELINE ===== */
+  .timeline-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    align-items: flex-start;
+  }
+  .tl-time {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffa502;
+    width: 52px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 2px;
+  }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #334155;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+  .tl-dot.now { background: #e94560; box-shadow: 0 0 8px rgba(233,69,96,0.6); }
+  .tl-dot.done { background: #2ecc71; }
+  .tl-content { flex: 1; }
+  .tl-title { font-weight: 600; font-size: 0.85rem; }
+  .tl-desc { font-size: 0.75rem; color: #64748b; line-height: 1.4; }
+
+  /* ===== PULSE ===== */
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: #2ecc71;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 2s infinite;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(46,204,113,0.5); }
+    50% { box-shadow: 0 0 0 6px rgba(46,204,113,0); }
+  }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar {
+    background: #0f172a;
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #e94560, #ffa502);
+    transition: width 0.3s;
+  }
+
+  /* ===== HELPER ===== */
+  .text-muted { color: #64748b; }
+  .text-sm { font-size: 0.78rem; }
+  .text-xs { font-size: 0.7rem; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .fw-700 { font-weight: 700; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="header">
-  <h1>NOAH KAHAN TICKET TRACKER</h1>
-  <div class="subtitle">The Great Divide Tour 2026 &mdash; with Gigi Perez</div>
-  <div class="venue-info">
-    Globe Life Field &bull; Arlington, TX &bull; <span>July 30, 2026 @ 6:30 PM</span>
+<!-- ========== COUNTDOWN (always visible) ========== -->
+<div class="countdown-sticky" id="countdown">
+  <span id="cd-label">ONSALE DROP</span>
+  <div class="cd-time" id="cd-time">
+    <span class="cd-unit" id="cd-d">--<small>d</small></span>
+    <span class="cd-unit" id="cd-h">--<small>h</small></span>
+    <span class="cd-unit" id="cd-m">--<small>m</small></span>
+    <span class="cd-unit" id="cd-s">--<small>s</small></span>
   </div>
 </div>
 
-<!-- COUNTDOWN -->
-<div class="countdown-bar" id="countdown">
-  <span class="label" id="countdown-label">GENERAL ONSALE &mdash; FEB 12 @ 12:00 PM CT</span>
-  <div class="time-units" id="countdown-units">
-    <span class="time-unit" id="cd-days">--<small>d</small></span>
-    <span class="time-unit" id="cd-hours">--<small>h</small></span>
-    <span class="time-unit" id="cd-mins">--<small>m</small></span>
-    <span class="time-unit" id="cd-secs">--<small>s</small></span>
+<!-- ========================================== -->
+<!-- PAGE 1: WAR ROOM (Launch Day Command Center) -->
+<!-- ========================================== -->
+<div class="page active" id="page-warroom">
+
+  <div class="hero">
+    <h1>WAR ROOM</h1>
+    <div class="meta">Noah Kahan &bull; The Great Divide Tour</div>
+    <div class="venue">Globe Life Field &bull; Arlington, TX &bull; Jul 30</div>
+  </div>
+
+  <!-- MAIN CTA -->
+  <a href="https://www.ticketmaster.com/noah-kahan-tickets/artist/2385568" target="_blank" class="launch-btn primary" id="main-cta">
+    OPEN TICKETMASTER NOW
+    <div class="btn-sub">Tap to open &rarr; Be signed in &rarr; Search "Noah Kahan Arlington"</div>
+  </a>
+
+  <!-- READINESS CHECKLIST -->
+  <div class="card">
+    <div class="card-h"><span class="pulse-dot"></span> Pre-Drop Checklist</div>
+    <div class="card-b">
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>Ticketmaster account logged in</strong><br><span class="text-muted text-xs">Open TM app + browser. Stay signed in on both.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>Payment info saved</strong><br><span class="text-muted text-xs">Credit card pre-loaded in TM account. No typing at checkout.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>Address auto-fill ready</strong><br><span class="text-muted text-xs">Billing address saved so checkout is 2 taps.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>Multiple devices queued</strong><br><span class="text-muted text-xs">Phone + laptop + tablet. Each on a different network if possible (WiFi + cellular).</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>TM event page pre-loaded</strong><br><span class="text-muted text-xs">Have the Noah Kahan Globe Life Field page open 5 min before drop.</span></div>
+      </div>
+      <div class="check-item">
+        <div class="check-box" onclick="toggleCheck(this)"></div>
+        <div class="check-text"><strong>Know my target sections</strong><br><span class="text-muted text-xs">Priority: Sec 106 > Sec 101-110 > Sec 26 > Sec 111-120 (see Seats tab)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="card">
+    <div class="card-h">Readiness</div>
+    <div class="card-b">
+      <div style="display:flex;justify-content:space-between;font-size:0.8rem;">
+        <span class="text-muted">Checklist progress</span>
+        <span id="progress-text" class="fw-700">0 / 6</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-DEVICE STRATEGY -->
+  <div class="card">
+    <div class="card-h">Multi-Device Blitz</div>
+    <div class="card-b">
+      <div class="device-row">
+        <div class="device-icon">&#128241;</div>
+        <div class="device-info">
+          <div class="device-name">Phone (TM App)</div>
+          <div class="device-task">Primary device &bull; Cellular data &bull; TM app</div>
+        </div>
+        <div class="device-status status-standby" onclick="cycleStatus(this)">STANDBY</div>
+      </div>
+      <div class="device-row">
+        <div class="device-icon">&#128187;</div>
+        <div class="device-info">
+          <div class="device-name">Laptop (Browser)</div>
+          <div class="device-task">Backup #1 &bull; WiFi &bull; ticketmaster.com</div>
+        </div>
+        <div class="device-status status-standby" onclick="cycleStatus(this)">STANDBY</div>
+      </div>
+      <div class="device-row">
+        <div class="device-icon">&#128195;</div>
+        <div class="device-info">
+          <div class="device-name">Tablet / 2nd Phone</div>
+          <div class="device-task">Backup #2 &bull; Different network &bull; TM app or browser</div>
+        </div>
+        <div class="device-status status-off" onclick="cycleStatus(this)">OFF</div>
+      </div>
+      <div class="device-row">
+        <div class="device-icon">&#129309;</div>
+        <div class="device-info">
+          <div class="device-name">Friend's Device</div>
+          <div class="device-task">Extra queue slot &bull; Their TM account &bull; Can transfer later</div>
+        </div>
+        <div class="device-status status-off" onclick="cycleStatus(this)">OFF</div>
+      </div>
+      <p class="text-xs text-muted mt-8">Tap status badges to update. Each device in the queue = another shot. Ticketmaster's queue is randomized, so more devices = better odds.</p>
+    </div>
+  </div>
+
+  <!-- DROP DAY TIMELINE -->
+  <div class="card">
+    <div class="card-h">Drop Day Timeline (Feb 12)</div>
+    <div class="card-b">
+      <div class="timeline-item">
+        <div class="tl-time">11:45</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-title">All devices open TM event page</div>
+          <div class="tl-desc">Don't refresh after this. Just wait for the queue to appear.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-time">11:50</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-title">Verify signed in on all devices</div>
+          <div class="tl-desc">Check top-right for your name. If logged out, re-login NOW.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-time">11:55</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-title">Hands ready, don't refresh</div>
+          <div class="tl-desc">TM auto-refreshes the waiting room. Manual refresh can lose your spot.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-time">12:00</div>
+        <div class="tl-dot now"></div>
+        <div class="tl-content">
+          <div class="tl-title" style="color:#e94560;">QUEUE OPENS - DO NOT REFRESH</div>
+          <div class="tl-desc">You'll get a random queue position. Wait patiently. Refreshing resets you to the back.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-time">12:00+</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-title">Your turn: SELECT FAST</div>
+          <div class="tl-desc">Pick "Best Available" in your target section OR grab first good option. You have ~2 min to checkout.</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-time">12:01+</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <div class="tl-title">CHECKOUT IMMEDIATELY</div>
+          <div class="tl-desc">Don't compare. Don't second-guess. Pre-saved payment = 2 taps. Tickets held for ~2 min max.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERT -->
+  <div class="alert alert-warn">
+    <strong>CRITICAL:</strong> DO NOT refresh during the queue. Ticketmaster assigns random positions at 12:00. Refreshing puts you at the back. The page auto-updates. Trust it.
+  </div>
+
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE 2: SEATS (Section Targeting) -->
+<!-- ========================================== -->
+<div class="page" id="page-seats">
+
+  <div class="hero">
+    <h1>TARGET SECTIONS</h1>
+    <div class="meta">Globe Life Field &bull; Best seats for $200 budget</div>
+  </div>
+
+  <div class="alert alert-info" style="margin-top:12px;">
+    When TM asks you to pick sections, go down this priority list. First available = grab it. Don't overthink.
+  </div>
+
+  <div class="card">
+    <div class="card-h">Section Priority (Best to Good)</div>
+    <div class="card-b">
+      <div class="section-row">
+        <div class="section-rank rank-1">1</div>
+        <div class="section-info">
+          <div class="section-name">Section 106</div>
+          <div class="section-desc">Fan favorite &bull; Extended stage view &bull; Lower bowl</div>
+        </div>
+        <div class="section-price price-yellow">$150-250</div>
+      </div>
+      <div class="section-row">
+        <div class="section-rank rank-2">2</div>
+        <div class="section-info">
+          <div class="section-name">Sections 101-110</div>
+          <div class="section-desc">Premium lower bowl &bull; Close to stage &bull; Great sightlines</div>
+        </div>
+        <div class="section-price price-yellow">$120-220</div>
+      </div>
+      <div class="section-row">
+        <div class="section-rank rank-3">3</div>
+        <div class="section-info">
+          <div class="section-name">Section 26</div>
+          <div class="section-desc">Amazing concert views &bull; Praised by fans</div>
+        </div>
+        <div class="section-price price-green">$130-200</div>
+      </div>
+      <div class="section-row">
+        <div class="section-rank rank-4">4</div>
+        <div class="section-info">
+          <div class="section-name">Sections 111-120</div>
+          <div class="section-desc">Solid lower bowl &bull; Good angle &bull; Best value</div>
+        </div>
+        <div class="section-price price-green">$80-180</div>
+      </div>
+      <div class="section-row">
+        <div class="section-rank rank-5">5</div>
+        <div class="section-info">
+          <div class="section-name">200-Level Mezzanine</div>
+          <div class="section-desc">Elevated view &bull; No obstructions &bull; Affordable</div>
+        </div>
+        <div class="section-price price-green">$60-150</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">Quick Decision Guide</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">1</span> TM shows you options?</div>
+        <div class="step-body">Look for Sec 106, 101-110, or 26 FIRST. If under $200, grab it instantly.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">2</span> Those are gone?</div>
+        <div class="step-body">Take Sec 111-120 lower bowl. Still great seats, likely under $180.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">3</span> Lower bowl sold out?</div>
+        <div class="step-body">200-level mezzanine is excellent for concerts. Elevated, clear view, under $150.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">4</span> Everything's expensive?</div>
+        <div class="step-body">Upper Boxes (308-317) center are $40-100. Still a great time with the jumbotron. Grab and go.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">Avoid These</div>
+    <div class="card-b">
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title" style="color:#e94560;">Floor/GA if you're under 5'8"</div>
+        <div class="step-body">Flat surface = blocked views if someone tall is in front. Lower bowl is better.</div>
+      </div>
+      <div class="step" style="border-left-color:#e94560;">
+        <div class="step-title" style="color:#e94560;">Upper corners (301-307, 318-325)</div>
+        <div class="step-body">Far side angle. If you're going upper, stay center: 308-317.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">Venue Quick Facts</div>
+    <div class="card-b">
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-label">Venue</div>
+          <div class="info-value">Globe Life Field</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Date</div>
+          <div class="info-value">Jul 30, 2026</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Show Time</div>
+          <div class="info-value">6:30 PM CT</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Opener</div>
+          <div class="info-value">Gigi Perez</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Roof</div>
+          <div class="info-value">Retractable (AC)</div>
+        </div>
+        <div class="info-box">
+          <div class="info-label">Capacity</div>
+          <div class="info-value">~40,300</div>
+        </div>
+      </div>
+      <p class="text-xs text-muted mt-12">734 Stadium Dr, Arlington, TX 76011 &bull; No re-entry &bull; All sales final &bull; Kids over 36" need ticket</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE 3: PRICES (Monitoring) -->
+<!-- ========================================== -->
+<div class="page" id="page-prices">
+
+  <div class="hero">
+    <h1>PRICE TRACKER</h1>
+    <div class="meta">Your budget: <span style="color:#2ecc71;font-weight:700;">$200 max per ticket</span></div>
+  </div>
+
+  <div class="alert alert-success" style="margin-top:12px;">
+    <strong style="color:#2ecc71;">BEST BET:</strong> Ticketmaster general onsale Feb 12 at 12PM CT. Face Value Exchange = tickets can only resell at original price. Resale sites are inflated right now.
+  </div>
+
+  <div class="card">
+    <div class="card-h">Current Lowest Prices</div>
+    <div class="card-b">
+      <div class="price-row">
+        <div>
+          <div class="pr-name">Ticketmaster</div>
+          <div class="pr-type"><span class="badge badge-green">OFFICIAL</span> Face value</div>
+        </div>
+        <div>
+          <div class="pr-price text-muted" style="font-size:0.85rem;">ONSALE FEB 12</div>
+          <div class="text-xs text-muted" style="text-align:right;">12PM CT</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="pr-name">Gametime</div>
+          <div class="pr-type">Resale</div>
+        </div>
+        <div>
+          <div class="pr-price price-red">$377+</div>
+          <div class="text-xs text-muted" style="text-align:right;">upper level</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="pr-name">SeatGeek</div>
+          <div class="pr-type">Resale</div>
+        </div>
+        <div>
+          <div class="pr-price price-red">$350+</div>
+          <div class="text-xs text-muted" style="text-align:right;">est. cheapest</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="pr-name">StubHub</div>
+          <div class="pr-type">Resale</div>
+        </div>
+        <div>
+          <div class="pr-price price-red">$400+</div>
+          <div class="text-xs text-muted" style="text-align:right;">est. cheapest</div>
+        </div>
+      </div>
+      <div class="price-row">
+        <div>
+          <div class="pr-name">Vivid Seats</div>
+          <div class="pr-type">Resale</div>
+        </div>
+        <div>
+          <div class="pr-price price-red">$380+</div>
+          <div class="text-xs text-muted" style="text-align:right;">est. cheapest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK BUY LINKS -->
+  <div class="card">
+    <div class="card-h">Quick Buy Links</div>
+    <div class="card-b">
+      <a href="https://www.ticketmaster.com/noah-kahan-tickets/artist/2385568" target="_blank" class="qlink">
+        <div>
+          <div class="qlink-label">Ticketmaster (Official)</div>
+          <div class="qlink-desc">Best chance at $200 or under &bull; Feb 12 12PM</div>
+        </div>
+        <span class="qlink-arrow">&rsaquo;</span>
+      </a>
+      <a href="https://gametime.co/concert/noah-kahan-tickets/7-30-2026-arlington-tx-globe-life-field/events/6980c8db9370d591607e6876" target="_blank" class="qlink">
+        <div>
+          <div class="qlink-label">Gametime</div>
+          <div class="qlink-desc">Last-minute drops possible &bull; From $377+</div>
+        </div>
+        <span class="qlink-arrow">&rsaquo;</span>
+      </a>
+      <a href="https://seatgeek.com/noah-kahan-tickets" target="_blank" class="qlink">
+        <div>
+          <div class="qlink-label">SeatGeek</div>
+          <div class="qlink-desc">Price comparison &bull; From $350+</div>
+        </div>
+        <span class="qlink-arrow">&rsaquo;</span>
+      </a>
+      <a href="https://www.vividseats.com/noah-kahan-tickets/performer/85974" target="_blank" class="qlink">
+        <div>
+          <div class="qlink-label">Vivid Seats</div>
+          <div class="qlink-desc">Resale marketplace &bull; From $380+</div>
+        </div>
+        <span class="qlink-arrow">&rsaquo;</span>
+      </a>
+      <a href="https://globelifefield.com/event/noah-kahan-20260730/" target="_blank" class="qlink">
+        <div>
+          <div class="qlink-label">Globe Life Field (Venue)</div>
+          <div class="qlink-desc">Day-of box office &bull; Official venue page</div>
+        </div>
+        <span class="qlink-arrow">&rsaquo;</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- WHEN PRICES DROP -->
+  <div class="card">
+    <div class="card-h">When Do Prices Drop?</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">1</span> Feb 12 (Onsale Day)</div>
+        <div class="step-body">Biggest inventory release. Best shot at face value $200 or under through Ticketmaster.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">2</span> 2-4 Weeks Before Show</div>
+        <div class="step-body">Resale prices on 3rd party sites typically drop 30-50% as sellers get anxious.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">3</span> Face Value Exchange</div>
+        <div class="step-body">Fans reselling on TM can only list at original price. Check TM regularly for these drops.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">4</span> Day Of Show</div>
+        <div class="step-body">Box office at Globe Life Field + last-minute resale panic = potential deals.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========================================== -->
+<!-- PAGE 4: PLAN (Backup Strategy) -->
+<!-- ========================================== -->
+<div class="page" id="page-plan">
+
+  <div class="hero">
+    <h1>FULL GAME PLAN</h1>
+    <div class="meta">Every angle covered &bull; $200 budget</div>
+  </div>
+
+  <!-- STRATEGY PHASES -->
+  <div class="card">
+    <div class="card-h" style="color:#e94560;">Phase 1: Artist Presale (Feb 10 @ 12PM)</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">A</span> Log into Ticketmaster</div>
+        <div class="step-body">No code needed. If you signed up by Feb 5, you're in. Just be logged in.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">B</span> Search "Noah Kahan Globe Life"</div>
+        <div class="step-body">Navigate to the Arlington TX event page. Have it loaded before 12PM.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">C</span> Target lower bowl under $200</div>
+        <div class="step-body">If nothing's in budget, don't panic. Onsale has way more inventory.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h" style="color:#ffa502;">Phase 2: General Onsale (Feb 12 @ 12PM CT)</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">A</span> Maximum devices in queue</div>
+        <div class="step-body">Phone (TM app, cellular), laptop (browser, WiFi), tablet, friend's device. Each gets a random queue position.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">B</span> Pre-load event page by 11:50 AM</div>
+        <div class="step-body">DO NOT refresh after this. TM will auto-update into queue mode.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">C</span> First device in = BUY</div>
+        <div class="step-body">Don't wait for a "better" seat on another device. First opportunity in budget = take it. You have ~2 min to checkout.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">D</span> Pre-saved payment = instant checkout</div>
+        <div class="step-body">Credit card already saved in TM. Billing address saved. Checkout is 2 taps, not 2 minutes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h" style="color:#3498db;">Phase 3: Post-Onsale Monitoring</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">A</span> TM Face Value Exchange</div>
+        <div class="step-body">Check Ticketmaster every few days. Fans who can't go will list at face value. These are your under-$200 golden tickets.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">B</span> Set SeatGeek + Gametime alerts</div>
+        <div class="step-body">Both apps let you set price alerts. Set for $200 on the Arlington show. You'll get a notification if a ticket drops.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">C</span> Watch 2-4 weeks before show</div>
+        <div class="step-body">Historically the sweet spot for price drops on resale. Sellers panic and list lower.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h" style="color:#2ecc71;">Phase 4: Last Resort</div>
+    <div class="card-b">
+      <div class="step">
+        <div class="step-title"><span class="step-num">A</span> Day-of box office</div>
+        <div class="step-body">Globe Life Field box office opens day of show. Remaining tickets at face value. Arrive early.</div>
+      </div>
+      <div class="step">
+        <div class="step-title"><span class="step-num">B</span> Day-of resale crash</div>
+        <div class="step-body">Resale prices often crater in the final hours. Check Gametime 2-3 hours before showtime for sub-$200 drops.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h">Resale Policy Reminder</div>
+    <div class="card-b">
+      <p class="text-sm" style="line-height:1.5;">
+        Noah Kahan uses <strong style="color:#2ecc71;">Ticketmaster Face Value Exchange</strong>. This means:
+      </p>
+      <ul style="list-style:none;margin-top:10px;">
+        <li class="text-sm" style="padding:4px 0;">&#10003; Tickets are <strong>non-transferable</strong></li>
+        <li class="text-sm" style="padding:4px 0;">&#10003; Can only resell on TM at <strong>original face value</strong></li>
+        <li class="text-sm" style="padding:4px 0;">&#10003; No scalping on TM = fair prices if you check back</li>
+        <li class="text-sm" style="padding:4px 0;">&#10003; Portion donated to <em>The Busyhead Project</em> (mental health)</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ========== BOTTOM TAB BAR ========== -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('warroom', this)">
+    <span class="tab-icon">&#9889;</span>
+    War Room
+  </div>
+  <div class="tab" onclick="switchTab('seats', this)">
+    <span class="tab-icon">&#127915;</span>
+    Seats
+  </div>
+  <div class="tab" onclick="switchTab('prices', this)">
+    <span class="tab-icon">&#128176;</span>
+    Prices
+  </div>
+  <div class="tab" onclick="switchTab('plan', this)">
+    <span class="tab-icon">&#128203;</span>
+    Plan
   </div>
 </div>
-
-<!-- STATUS -->
-<div class="status-bar">
-  <div class="pulse"></div>
-  <span>Tracker active &mdash; monitoring Ticketmaster, SeatGeek, StubHub, Vivid Seats, Gametime</span>
-</div>
-
-<!-- BUDGET BANNER -->
-<div class="budget-banner">
-  <div>
-    <div class="budget-label">YOUR MAX BUDGET PER TICKET</div>
-    <div class="budget-amount">$200</div>
-  </div>
-  <div>
-    <div class="budget-label">TARGET SHOW</div>
-    <div style="font-size:1.1rem;font-weight:700;color:#fff;">July 30, 2026 &bull; Arlington, TX</div>
-  </div>
-  <div class="budget-tip">Prices flagged <span style="color:#2ecc71;">green</span> are within budget. <span style="color:#e94560;">Red</span> = over budget. Best bet: General onsale Feb 12 at 12PM CT on Ticketmaster.</div>
-</div>
-
-<!-- ALERT -->
-<div class="alert-box warning" id="presale-alert">
-  <strong>PRESALE LIVE NOW (Feb 10):</strong> Artist presale is happening today at 12PM local time via Ticketmaster. No code needed &mdash; just be signed in to your Ticketmaster account. General onsale is <strong>Feb 12 at 12PM CT</strong>. Face Value Exchange means resale is locked to original price on Ticketmaster.
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="main">
-  <div class="grid">
-
-    <!-- CURRENT LOWEST PRICES -->
-    <div class="card">
-      <div class="card-header">&#128176; Lowest Prices Found</div>
-      <div class="card-body">
-        <div class="price-source">
-          <div>
-            <div class="source-name">Ticketmaster (Official)</div>
-            <div class="source-type">Face value &bull; Primary</div>
-          </div>
-          <div>
-            <div class="price unknown" id="tm-price">ONSALE FEB 12</div>
-            <div class="price-note">12PM CT</div>
-          </div>
-        </div>
-        <div class="price-source">
-          <div>
-            <div class="source-name">Gametime</div>
-            <div class="source-type">Resale &bull; Secondary</div>
-          </div>
-          <div>
-            <div class="price over-budget">$377+</div>
-            <div class="price-note">upper level</div>
-          </div>
-        </div>
-        <div class="price-source">
-          <div>
-            <div class="source-name">SeatGeek</div>
-            <div class="source-type">Resale &bull; Secondary</div>
-          </div>
-          <div>
-            <div class="price over-budget">$350+</div>
-            <div class="price-note">est. cheapest</div>
-          </div>
-        </div>
-        <div class="price-source">
-          <div>
-            <div class="source-name">StubHub</div>
-            <div class="source-type">Resale &bull; Secondary</div>
-          </div>
-          <div>
-            <div class="price over-budget">$400+</div>
-            <div class="price-note">est. cheapest</div>
-          </div>
-        </div>
-        <div class="price-source">
-          <div>
-            <div class="source-name">Vivid Seats</div>
-            <div class="source-type">Resale &bull; Secondary</div>
-          </div>
-          <div>
-            <div class="price over-budget">$380+</div>
-            <div class="price-note">est. cheapest</div>
-          </div>
-        </div>
-        <p style="margin-top:14px;font-size:0.8rem;color:#64748b;">
-          Resale prices are inflated pre-onsale. Your best shot at $200 or under is the <strong style="color:#2ecc71;">official Ticketmaster onsale on Feb 12</strong>.
-        </p>
-      </div>
-    </div>
-
-    <!-- BEST SECTIONS -->
-    <div class="card">
-      <div class="card-header">&#127919; Best Sections at Globe Life Field (Concerts)</div>
-      <div class="card-body">
-        <table class="section-table">
-          <thead>
-            <tr><th>Section</th><th>Level</th><th>Why It's Good</th><th>Est. Price</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Field / GA Pit</strong></td>
-              <td><span class="badge badge-gold">FLOOR</span></td>
-              <td>Closest to stage, electric energy</td>
-              <td><span style="color:#e94560;">$200+</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 106</strong></td>
-              <td><span class="badge badge-green">LOWER</span></td>
-              <td>Extended stage views, fan favorite</td>
-              <td><span style="color:#ffa502;">$150-250</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 101-110</strong></td>
-              <td><span class="badge badge-green">LOWER</span></td>
-              <td>Great sightlines, close to stage</td>
-              <td><span style="color:#ffa502;">$120-220</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 26</strong></td>
-              <td><span class="badge badge-green">LOWER</span></td>
-              <td>Amazing concert views per fans</td>
-              <td><span style="color:#ffa502;">$130-200</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 111-120</strong></td>
-              <td><span class="badge badge-blue">LOWER</span></td>
-              <td>Solid angle, good value</td>
-              <td><span style="color:#2ecc71;">$80-180</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 200s</strong></td>
-              <td><span class="badge badge-blue">MEZZANINE</span></td>
-              <td>Elevated view, no obstructions</td>
-              <td><span style="color:#2ecc71;">$60-150</span></td>
-            </tr>
-            <tr>
-              <td><strong>Sec 308-317</strong></td>
-              <td><span class="badge badge-red">UPPER BOX</span></td>
-              <td>Best upper level, center views</td>
-              <td><span style="color:#2ecc71;">$40-100</span></td>
-            </tr>
-          </tbody>
-        </table>
-        <p style="margin-top:12px;font-size:0.78rem;color:#64748b;">
-          Est. prices are based on face value ranges from similar stadium concerts. Actual prices revealed at onsale.
-        </p>
-      </div>
-    </div>
-
-    <!-- SEATING MAP -->
-    <div class="card full-width">
-      <div class="card-header">&#128506; Globe Life Field - Concert Seating Overview</div>
-      <div class="card-body">
-        <div class="seating-map"><span class="stage">  ╔══════════════════════════════════╗
-  ║        ★ ★ ★  S T A G E  ★ ★ ★        ║
-  ╚══════════════════════════════════╝</span>
-
-         <span class="highlight">[ GA PIT / FLOOR SEATS ]</span>          &lt;-- Closest, premium
-       <span class="highlight">Field Sections  1  -  26</span>
-
-  ┌────────────────────────────────────────────┐
-  │  <span class="good">101  102  103  104  105  106  107  108  109  110</span>  │  &lt;-- BEST VALUE TARGET
-  │                                            │      Sections 101-110
-  │  <span class="ok">111  112  113  114  115  116  117  118  119  120</span>  │      Lower Bowl
-  │                                            │
-  │  <span class="ok">121  122  123  124  125  126  127  128  129  130</span>  │
-  │                     ...                    │
-  │               131  132  133  134           │
-  └────────────────────────────────────────────┘
-
-  ┌────────────────────────────────────────────┐
-  │            200-Level  (Mezzanine)          │  &lt;-- Good elevated view
-  └────────────────────────────────────────────┘
-
-  ┌────────────────────────────────────────────┐
-  │       300-Level  (Upper / <span class="ok">308-317 Best</span>)    │  &lt;-- Most affordable
-  └────────────────────────────────────────────┘</div>
-        <p style="margin-top:12px;font-size:0.8rem;color:#64748b;">
-          For your $200 budget: Target <span style="color:#2ecc71;font-weight:600;">Lower Bowl (101-120)</span> or <span style="color:#2ecc71;font-weight:600;">Section 26</span> for best concert experience. <span style="color:#ffa502;">Section 106</span> is the fan favorite.
-        </p>
-      </div>
-    </div>
-
-    <!-- BUY LINKS -->
-    <div class="card">
-      <div class="card-header">&#128279; Quick Buy Links</div>
-      <div class="card-body">
-        <div class="link-grid">
-          <a href="https://www.ticketmaster.com/noah-kahan-tickets/artist/2385568" target="_blank" class="quick-link">
-            <div>
-              <div class="link-label">Ticketmaster (Official)</div>
-              <div class="link-desc">Best chance at face value &bull; Onsale Feb 12 12PM CT</div>
-            </div>
-            <span class="arrow">&rarr;</span>
-          </a>
-          <a href="https://gametime.co/concert/noah-kahan-tickets/7-30-2026-arlington-tx-globe-life-field/events/6980c8db9370d591607e6876" target="_blank" class="quick-link">
-            <div>
-              <div class="link-label">Gametime</div>
-              <div class="link-desc">Last-minute deals possible &bull; From $377+</div>
-            </div>
-            <span class="arrow">&rarr;</span>
-          </a>
-          <a href="https://seatgeek.com/noah-kahan-tickets" target="_blank" class="quick-link">
-            <div>
-              <div class="link-label">SeatGeek</div>
-              <div class="link-desc">Price comparison &bull; From $350+</div>
-            </div>
-            <span class="arrow">&rarr;</span>
-          </a>
-          <a href="https://www.vividseats.com/noah-kahan-tickets/performer/85974" target="_blank" class="quick-link">
-            <div>
-              <div class="link-label">Vivid Seats</div>
-              <div class="link-desc">Resale marketplace &bull; From $380+</div>
-            </div>
-            <span class="arrow">&rarr;</span>
-          </a>
-          <a href="https://globelifefield.com/event/noah-kahan-20260730/" target="_blank" class="quick-link">
-            <div>
-              <div class="link-label">Globe Life Field (Venue)</div>
-              <div class="link-desc">Official venue page &bull; Day-of box office available</div>
-            </div>
-            <span class="arrow">&rarr;</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- GAME PLAN -->
-    <div class="card">
-      <div class="card-header">&#128640; Your Game Plan to Get $200 Tickets</div>
-      <div class="card-body">
-        <ul class="strategy-list">
-          <li>
-            <span class="step-num">1</span>
-            <div><strong>RIGHT NOW &mdash; Artist Presale (Feb 10 @ 12PM CT)</strong><br>Log into Ticketmaster NOW. No code needed. Search "Noah Kahan Globe Life Field" and be ready to grab lower bowl seats.</div>
-          </li>
-          <li>
-            <span class="step-num">2</span>
-            <div><strong>Feb 12 @ 12PM CT &mdash; General Onsale</strong><br>This is your biggest shot. More inventory opens up. Target Sections 101-110 or Section 26. Have payment info saved. Be logged in 5 min early.</div>
-          </li>
-          <li>
-            <span class="step-num">3</span>
-            <div><strong>Use Face Value Exchange</strong><br>Noah Kahan uses Ticketmaster's Face Value Exchange. If you miss onsale, fans can only resell at the original price. Check back regularly for resale drops.</div>
-          </li>
-          <li>
-            <span class="step-num">4</span>
-            <div><strong>Monitor Price Drops</strong><br>Resale prices on 3rd party sites often drop as the show approaches. Set alerts on Gametime and SeatGeek. Prices under $200 are most likely 2-4 weeks before the show.</div>
-          </li>
-          <li>
-            <span class="step-num">5</span>
-            <div><strong>Day-Of Box Office</strong><br>Globe Life Field box office sells remaining tickets day of show. Potential for face value or discounted last-minute seats.</div>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- PRICE ALERT SETTINGS -->
-    <div class="card full-width">
-      <div class="card-header">&#128276; Price Alert Simulator</div>
-      <div class="card-body" style="text-align:center;">
-        <p style="margin-bottom:14px;color:#94a3b8;">Enter your target price to see which sections could work for you:</p>
-        <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
-          <label style="font-size:1rem;font-weight:600;">Max Price: $</label>
-          <input type="number" id="budget-input" value="200" min="20" max="2000" step="10"
-            style="background:#0f172a;border:2px solid #334155;border-radius:8px;padding:10px 16px;color:#fff;font-size:1.2rem;width:120px;text-align:center;font-weight:700;">
-          <button class="refresh-btn" onclick="updateBudget()">Update Budget</button>
-        </div>
-        <div id="budget-results" style="margin-top:18px;text-align:left;"></div>
-      </div>
-    </div>
-
-    <!-- KEY INFO -->
-    <div class="card full-width">
-      <div class="card-header">&#9432; Key Info for Globe Life Field Concert</div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;">
-          <div>
-            <strong style="color:#ffa502;">Venue</strong><br>
-            Globe Life Field<br>
-            734 Stadium Dr, Arlington, TX 76011
-          </div>
-          <div>
-            <strong style="color:#ffa502;">Show Time</strong><br>
-            July 30, 2026 &bull; Doors: TBD &bull; Show: 6:30 PM
-          </div>
-          <div>
-            <strong style="color:#ffa502;">Support Act</strong><br>
-            Gigi Perez
-          </div>
-          <div>
-            <strong style="color:#ffa502;">Important Rules</strong><br>
-            &bull; No re-entry permitted<br>
-            &bull; All sales final, no refunds<br>
-            &bull; Kids over 36" need a ticket<br>
-            &bull; Retractable roof (climate controlled)
-          </div>
-          <div>
-            <strong style="color:#ffa502;">Resale Policy</strong><br>
-            Face Value Exchange only on Ticketmaster.<br>
-            Tickets non-transferable. Can only resell at face value.
-          </div>
-          <div>
-            <strong style="color:#ffa502;">Charity</strong><br>
-            Portion of each ticket donated to<br>
-            <em>The Busyhead Project</em> (mental health initiative)
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<footer>
-  Noah Kahan Ticket Tracker &bull; Built for the Great Divide Tour 2026 &bull; Prices update at onsale &bull; Not affiliated with Ticketmaster or Noah Kahan
-</footer>
 
 <script>
-  // === COUNTDOWN TIMER ===
-  // General onsale: Feb 12, 2026 @ 12:00 PM CT (UTC-6)
-  const ONSALE_DATE = new Date('2026-02-12T12:00:00-06:00');
-  // Artist presale: Feb 10, 2026 @ 12:00 PM CT
-  const PRESALE_DATE = new Date('2026-02-10T12:00:00-06:00');
+  // ===== TAB SWITCHING =====
+  function switchTab(pageId, tabEl) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('page-' + pageId).classList.add('active');
+    tabEl.classList.add('active');
+    window.scrollTo(0, 0);
+  }
 
-  function updateCountdown() {
+  // ===== COUNTDOWN =====
+  const ONSALE = new Date('2026-02-12T12:00:00-06:00');
+  const PRESALE = new Date('2026-02-10T12:00:00-06:00');
+
+  function updateCD() {
     const now = new Date();
     const el = document.getElementById('countdown');
-    const label = document.getElementById('countdown-label');
+    const label = document.getElementById('cd-label');
+    let target;
 
-    let target, labelText;
-
-    if (now < PRESALE_DATE) {
-      target = PRESALE_DATE;
-      labelText = 'ARTIST PRESALE — FEB 10 @ 12:00 PM CT';
-    } else if (now < ONSALE_DATE) {
-      target = ONSALE_DATE;
-      labelText = 'GENERAL ONSALE — FEB 12 @ 12:00 PM CT';
+    if (now < PRESALE) {
+      target = PRESALE;
+      label.textContent = 'PRESALE DROPS IN';
+    } else if (now < ONSALE) {
+      target = ONSALE;
+      label.textContent = 'GENERAL ONSALE IN';
     } else {
-      label.textContent = 'TICKETS ARE ON SALE NOW — GO GO GO!';
-      document.getElementById('countdown-units').innerHTML =
-        '<span class="time-unit" style="min-width:auto;">LIVE</span>';
-      el.classList.add('expired');
+      label.textContent = 'TICKETS ON SALE NOW - GO!';
+      document.getElementById('cd-time').innerHTML = '<span class="cd-unit" style="background:#fff3;letter-spacing:2px;">LIVE</span>';
+      el.classList.add('live');
       return;
     }
 
-    label.textContent = labelText;
     const diff = target - now;
     const d = Math.floor(diff / 86400000);
     const h = Math.floor((diff % 86400000) / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     const s = Math.floor((diff % 60000) / 1000);
 
-    document.getElementById('cd-days').innerHTML = d + '<small>d</small>';
-    document.getElementById('cd-hours').innerHTML = String(h).padStart(2,'0') + '<small>h</small>';
-    document.getElementById('cd-mins').innerHTML = String(m).padStart(2,'0') + '<small>m</small>';
-    document.getElementById('cd-secs').innerHTML = String(s).padStart(2,'0') + '<small>s</small>';
+    document.getElementById('cd-d').innerHTML = d + '<small>d</small>';
+    document.getElementById('cd-h').innerHTML = String(h).padStart(2, '0') + '<small>h</small>';
+    document.getElementById('cd-m').innerHTML = String(m).padStart(2, '0') + '<small>m</small>';
+    document.getElementById('cd-s').innerHTML = String(s).padStart(2, '0') + '<small>s</small>';
+  }
+  setInterval(updateCD, 1000);
+  updateCD();
+
+  // ===== CHECKLIST =====
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    el.innerHTML = el.classList.contains('checked') ? '&#10003;' : '';
+    el.nextElementSibling?.classList.toggle('done', el.classList.contains('checked'));
+    updateProgress();
   }
 
-  setInterval(updateCountdown, 1000);
-  updateCountdown();
+  function updateProgress() {
+    const total = document.querySelectorAll('.check-box').length;
+    const checked = document.querySelectorAll('.check-box.checked').length;
+    document.getElementById('progress-text').textContent = checked + ' / ' + total;
+    document.getElementById('progress-fill').style.width = (checked / total * 100) + '%';
+  }
 
-  // === BUDGET SIMULATOR ===
-  const SECTIONS = [
-    { name: 'Upper Deck (301-325)', low: 40, high: 100, tier: 'Upper' },
-    { name: 'Upper Boxes (308-317)', low: 50, high: 120, tier: 'Upper Box' },
-    { name: 'Mezzanine (200s)', low: 60, high: 150, tier: 'Mezzanine' },
-    { name: 'Lower Bowl (111-134)', low: 80, high: 180, tier: 'Lower' },
-    { name: 'Lower Bowl (101-110)', low: 120, high: 220, tier: 'Lower Premium' },
-    { name: 'Section 106 (Fan Fav)', low: 150, high: 250, tier: 'Lower Premium' },
-    { name: 'Section 26', low: 130, high: 200, tier: 'Lower Premium' },
-    { name: 'Field / GA Pit', low: 200, high: 500, tier: 'Floor' },
+  // ===== DEVICE STATUS CYCLE =====
+  const STATUS_CYCLE = [
+    { cls: 'status-off', text: 'OFF' },
+    { cls: 'status-standby', text: 'STANDBY' },
+    { cls: 'status-ready', text: 'READY' }
   ];
 
-  function updateBudget() {
-    const budget = parseInt(document.getElementById('budget-input').value) || 200;
-    const container = document.getElementById('budget-results');
-
-    let html = '<div style="display:grid;gap:8px;">';
-    SECTIONS.forEach(s => {
-      const inBudget = budget >= s.low;
-      const fullyInBudget = budget >= s.high;
-      const color = fullyInBudget ? '#2ecc71' : inBudget ? '#ffa502' : '#e94560';
-      const status = fullyInBudget ? 'ALL SEATS AVAILABLE' : inBudget ? 'SOME SEATS POSSIBLE' : 'OVER BUDGET';
-      const icon = fullyInBudget ? '&#10003;' : inBudget ? '~' : '&#10007;';
-
-      html += `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#0f172a;border-radius:6px;border-left:3px solid ${color};">
-        <div>
-          <strong>${s.name}</strong>
-          <div style="font-size:0.75rem;color:#64748b;">$${s.low} - $${s.high} est.</div>
-        </div>
-        <div style="color:${color};font-weight:700;font-size:0.85rem;text-align:right;">
-          ${icon} ${status}
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-    container.innerHTML = html;
+  function cycleStatus(el) {
+    const current = STATUS_CYCLE.findIndex(s => el.classList.contains(s.cls));
+    const next = (current + 1) % STATUS_CYCLE.length;
+    el.classList.remove(STATUS_CYCLE[current].cls);
+    el.classList.add(STATUS_CYCLE[next].cls);
+    el.textContent = STATUS_CYCLE[next].text;
   }
-
-  // Initialize budget results on load
-  updateBudget();
 </script>
 
 </body>
