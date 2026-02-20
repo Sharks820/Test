@@ -1,1 +1,84 @@
+# =============================================================================
+# GLOBAL GITIGNORE - Sharks820/Test Monorepo
+# =============================================================================
+# This file protects sensitive data and keeps the repo clean across ALL branches.
+
+# ----- Sensitive / Secret Files -----
+# Environment variables, API keys, credentials
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+*.env
+
+# API keys and secrets
+secrets/
+*.secret
+*.key
+*.pem
+*.p12
+*.pfx
+*.credentials
+credentials.json
+service-account*.json
+token.json
+
+# Password files
+*.password
+*.passwd
+passwords.txt
+passwords.csv
+
+# ----- Private Data Files -----
+# Excel/spreadsheet files with sensitive data (override per-branch if needed)
+private/
+confidential/
 extracted/
+
+# ----- OS Generated Files -----
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ----- IDE / Editor Files -----
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# ----- Common Build / Dependency Artifacts -----
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+dist/
+build/
+*.o
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ----- Logs & Temp Files -----
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# ----- Package Manager Lock Files (optional, uncomment if not needed) -----
+# package-lock.json
+# yarn.lock

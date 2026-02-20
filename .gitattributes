@@ -1,0 +1,50 @@
+# =============================================================================
+# GIT ATTRIBUTES - Sharks820/Test Monorepo
+# =============================================================================
+# Controls how Git handles files across branches to prevent corruption and
+# improve diff behavior.
+
+# ----- Auto-detect text files and normalize line endings -----
+* text=auto
+
+# ----- Force text handling for known text types -----
+*.html  text diff=html
+*.css   text diff=css
+*.js    text diff
+*.json  text diff
+*.md    text diff=markdown
+*.txt   text diff
+*.csv   text diff
+*.xml   text diff
+*.yml   text diff
+*.yaml  text diff
+*.py    text diff=python
+*.sh    text eol=lf
+
+# ----- Binary files (do not diff or merge) -----
+*.xlsx  binary
+*.xls   binary
+*.xlsm  binary
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.zip   binary
+*.gz    binary
+*.tar   binary
+*.7z    binary
+*.mp3   binary
+*.mp4   binary
+*.mov   binary
+*.doc   binary
+*.docx  binary
+*.ppt   binary
+*.pptx  binary
+
+# ----- Prevent sensitive files from being diffed in logs -----
+*.secret  binary
+*.key     binary
+*.pem     binary
+*.env     binary
