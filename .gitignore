@@ -1,1 +1,44 @@
+# === Extracted / temp files ===
 extracted/
+
+# === Secrets & credentials — NEVER commit these ===
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+credentials.json
+secrets.json
+service-account*.json
+token.json
+
+# === OS files ===
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# === Editor / IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# === Logs ===
+*.log
+logs/
+
+# === Dependencies (add per-project as needed) ===
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# === Build outputs ===
+dist/
+build/
+*.o
+*.exe
